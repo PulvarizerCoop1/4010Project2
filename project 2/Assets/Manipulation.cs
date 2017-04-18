@@ -33,10 +33,14 @@ public class Manipulation : MonoBehaviour {
             pickup.transform.parent = this.transform;
             pickup.GetComponent<Rigidbody>().isKinematic = true;
           }
-        if (controller.GetPressUp(gripButton) && pickup != null) {
+        /*if (controller.GetPressUp(gripButton) && pickup != null) {
            pickup.transform.parent = null;
             pickup.GetComponent<Rigidbody>().isKinematic = true;
-          }
+          }*/
+        // need a buttonpress,maybe trackpad
+  		if (controller.GetPressDown(null) && pickup != null) {       	
+        	pickup.transform.localScale += new Vector3(0.1F, 0.1F, 0.1F);
+  		}
   	}
 
     private void OnTriggerEnter(Collider collider) {
