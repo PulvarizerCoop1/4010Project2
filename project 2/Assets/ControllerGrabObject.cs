@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿/*
+ * 
+ * Code was created with help from
+ * https://www.raywenderlich.com/149239/htc-vive-tutorial-unity
+ * 
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +21,8 @@ public class ControllerGrabObject : MonoBehaviour
     // Serves as a reference to the GameObject that the player is currently
     //  grabbing
     private GameObject objectInHand;
+
+	private	GameObject cube;
 
     private SteamVR_Controller.Device Controller
     {
@@ -71,6 +80,7 @@ public class ControllerGrabObject : MonoBehaviour
         // Move the GameObject inside the player's hand and remove it from
         //  the collidingObject variable
         objectInHand = collidingObject;
+		print ("Object in hand: " + objectInHand);
         collidingObject = null;
         // Add a new joint that connects the controller to the object
         var joint = AddFixedJoint();
@@ -105,25 +115,65 @@ public class ControllerGrabObject : MonoBehaviour
         objectInHand = null;
     }
 
+	void ScaleUp(){
+		objectInHand.transform.localScale += new Vector3 (.5f, .5f, .5f);
+		//objectInHand.GetComponent<BoxCollider>().size += new Vector3 (.1f, .1f, .1f);
+	}
+
+	void ScaleDown(){
+		objectInHand.transform.localScale -= new Vector3 (.5f, .5f, .5f);
+		//objectInHand.GetComponent<BoxCollider>().size -= new Vector3 (.1f, .1f, .1f);
+	}
+
     // Update is called once per frame
     void Update()
-    {
-        // Grab object on trigger squeeze
-        if (Controller.GetHairTriggerDown())
-        {
-            if (collidingObject)
-            {
-                GrabObject();
-            }
-        }
+	{
+		if (Controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_Grip))
+		{
+			if (collidingObject)
+			{
+				GrabObject();
+			}
+		}
 
-        // Release object when the user releases the trigger
-        if (Controller.GetHairTriggerUp())
-        {
-            if (objectInHand)
-            {
-                ReleaseObject();
-            }
-        }
+		if (Controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_Grip))
+		{
+			if (objectInHand)
+			{
+				ReleaseObject();
+			}
+		}
+
+		if (Controller.GetAxis (Valve.VR.EVRButtonId.k_EButton_Axis0) [0] > 0.8f
+		   && Controller.GetPressDown (Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad)) {
+			print ("here1");
+			ScaleUp();
+		}
+
+		if (Controller.GetAxis (Valve.VR.EVRButtonId.k_EButton_Axis0) [0] < 0.8f
+			&& Controller.GetPressDown (Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad)) {
+			print ("here2");
+			ScaleDown();
+		}
+
+		if (Controller.GetHairTriggerDown ()) {
+			Vector3 startPos = transform.position;
+			Vector3 endPos = startPos + transform.forward * 4f;
+
+			cube = GameObject.CreatePrimitive (PrimitiveType.Cube);
+
+			cube.transform.position = new Vector3(endPos[0],.5f,endPos[2]);
+			cube.transform.localScale = new Vector3 (.5f, .1f, .5f);
+
+			Destroy (cube.GetComponent<Rigidbody> ());
+			Destroy (cube.GetComponent<BoxCollider> ());
+
+			cube.GetComponent<Renderer> ().material.color = Color.green;
+		}
+
+		if (Controller.GetHairTriggerUp ()) {
+			transform.parent.position = cube.transform.position;
+			Destroy (cube);
+		}
     }
 }
