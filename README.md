@@ -1,5 +1,5 @@
-# 4010Project2
-Project 2 VR
+# 4010Project2/Final
+Project 2 / Final VR
 
 Jordan Cooper
 Colin Riley
